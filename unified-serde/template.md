@@ -11,7 +11,7 @@
   
 ***
 
-:liquid {{ color  }}:
+:liquid[{{ color  }}]
 
 # Headings
 

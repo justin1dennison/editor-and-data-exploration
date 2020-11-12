@@ -34,6 +34,7 @@ function liquidDirectives() {
         if(node.type === 'yaml') {
             node.children = processor.parse(node.value).children
         }
+        
     }
 }
 
