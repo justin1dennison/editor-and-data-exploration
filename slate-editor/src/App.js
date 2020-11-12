@@ -1,46 +1,57 @@
-import { createEditor, Node } from "slate"
-import { Slate, Editable, withReact } from "slate-react"
-import { useState, useMemo, useEffect } from "react"
-import Liquid from "./components/Liquid"
+import { createEditor, Node, Text } from "slate"
+import { Slate, Editable, withReact, useEditor } from "slate-react"
+import { useMemo, useCallback } from "react"
+import { withHistory } from "slate-history"
+import dedent from "ts-dedent"
 
-function serialize(nodes) {}
-function deserialize(el) {
-  console.log({ el })
-}
+import Liquid from "./components/Liquid"
+import { useStore } from "./store"
 
 function App() {
-  const [color, setColor] = useState("")
-  const [tmpl, setTmpl] = useState("")
-  const editor = useMemo(() => withReact(createEditor()), [])
-  const [state, setState] = useState([
-    {
-      type: "paragraph",
-      children: [{ text: "A line of text in a paragraph." }],
-    },
-  ])
-  useEffect(() => {
-    fetch("/template.md")
-      .then((r) => r.text())
-      .then((t) => setTmpl(t))
-      .catch(() => setTmpl("## Sample"))
-  }, [])
+  const {
+    color,
+    setColor,
+    author,
+    setAuthor,
+    title,
+    setTitle,
+    content,
+    setContent,
+  } = useStore()
+  const editor = useMemo(() => withHistory(withReact(createEditor())), [])
+  function renderer(props) {
+    const { element, children, attributes } = props
+    switch (element.type) {
+      case "liquid":
+        const { text } = Node.get(element, [0])
+        return (
+          <Liquid {...props} env={{ color, title, author }}>
+            {text}
+          </Liquid>
+        )
+      default:
+        return <p {...attributes}>{children}</p>
+    }
+  }
+
+  const renderElement = useCallback(renderer, [color, author, title])
   return (
     <div>
       <section className="fl w-100 pa2 bb mb4">
         <h2>Editor</h2>
         <Slate
           editor={editor}
-          value={state}
-          onChange={(value) => setState(value)}
+          value={content}
+          onChange={(value) => setContent(value)}
         >
-          <Editable />
+          <Editable renderElement={renderElement} />
         </Slate>
       </section>
 
       <section className="fl w-50 pa2 mb3">
         <h2>State Editor</h2>
         <div className="measure">
-          <label htmlFor="name" className="f6 b db mb2">
+          <label htmlFor="color" className="f6 b db mb2">
             Color
           </label>
           <input
@@ -50,17 +61,53 @@ function App() {
             value={color}
             onChange={(e) => setColor(e.target.value)}
           />
-          <small id="name-desc" className="f6 black-60 db mb2">
-            Helper text for the form control.
-          </small>
+        </div>
+        <div className="measure">
+          <label htmlFor="title" className="f6 b db mb2">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            className="input-reset ba b--black-20 pa2 mb2 db w-100"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="measure">
+          <label htmlFor="author" className="f6 b db mb2">
+            Author
+          </label>
+          <input
+            type="text"
+            id="author"
+            className="input-reset ba b--black-20 pa2 mb2 db w-100"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+          />
         </div>
       </section>
       <section className="mt2 fl w-50 pa2 bg-light-gray">
         <h2>Document</h2>
-        <pre>{tmpl}</pre>
+        <pre>{""}</pre>
       </section>
     </div>
   )
 }
 
 export default App
+
+function deserialize(nodes) {
+  let result = ""
+
+  for (let node of nodes) {
+    const texts = [...Node.texts(node)].map((t) => t[0].text)
+    if (node.type === "liquid") {
+      result += dedent(node.template)
+    } else {
+      result += texts.join("")
+    }
+    result += "\n\n"
+  }
+  return result
+}

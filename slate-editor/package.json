@@ -3,16 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@accordproject/markdown-transform": "^0.12.12",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "liquidjs": "^9.16.1",
+    "mdast-util-directive": "^1.0.0",
+    "mdast-util-from-markdown": "^0.8.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.0",
+    "remark-directive": "^1.0.1",
+    "remark-parse": "^9.0.0",
+    "remark-stringify": "^9.0.0",
     "slate": "^0.59.0",
+    "slate-history": "^0.59.0",
     "slate-react": "^0.59.0",
     "tachyons": "^4.12.0",
+    "ts-dedent": "^2.0.0",
+    "unified": "^9.2.0",
+    "unist-util-map": "^2.0.1",
+    "unist-util-visit": "^2.0.3",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
@@ -41,21 +52,7 @@
     ]
   },
   "devDependencies": {
-    "hastscript": "^6.0.0",
-    "mdast-util-directive": "^1.0.0",
-    "mdast-util-from-markdown": "^0.8.1",
-    "micromark-extension-directive": "^1.0.0",
-    "prettier": "^2.1.2",
-    "rehype-format": "^3.1.0",
-    "rehype-stringify": "^8.0.0",
-    "remark-directive": "^1.0.1",
-    "remark-frontmatter": "^3.0.0",
-    "remark-parse": "^9.0.0",
-    "remark-rehype": "^8.0.0",
-    "remark-stringify": "^9.0.0",
-    "to-vfile": "^6.1.0",
-    "unified": "^9.2.0",
-    "unist-util-visit": "^2.0.3",
-    "vfile-reporter": "^6.0.1"
+    "@accordproject/markdown-cli": "^0.12.12",
+    "prettier": "^2.1.2"
   }
 }
