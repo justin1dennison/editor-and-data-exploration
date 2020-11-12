@@ -5,17 +5,17 @@
 
 # Headings
 
-<liquid>{{ color }}</liquid>
+<!-- <liquid>{{ color }}</liquid>
 
 <liquid>
 {% for i in (1..6) %}
 {{ '#' | repeat: i }} h{{i}} Heading
 {% endfor %}
-</liqudi>
+</liqudi> -->
 
 Some other text in between
 
-<liquid>
+<!-- <liquid>
 {% if color == "blue" %}
   The color blue is awesome!
 {% elsif color == "red" %}
@@ -23,7 +23,7 @@ Some other text in between
 {% else %}
   The color {{color}} is ok, ...I guess.
 {% endif %}
-</liquid>
+</liquid> -->
 
 ## Horizontal Rules
 

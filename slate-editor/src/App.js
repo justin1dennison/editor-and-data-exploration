@@ -5,6 +5,7 @@ import { withHistory } from "slate-history"
 import dedent from "ts-dedent"
 
 import Liquid from "./components/Liquid"
+import Markdown from './components/AccordMarkdown'
 import { useStore } from "./store"
 
 function App() {
@@ -91,6 +92,7 @@ function App() {
         <h2>Document</h2>
         <pre>{""}</pre>
       </section>
+      <Markdown />
     </div>
   )
 }
