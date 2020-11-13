@@ -1,12 +1,27 @@
-import { createEditor, Node, Text } from "slate"
-import { Slate, Editable, withReact, useEditor } from "slate-react"
-import { useMemo, useCallback } from "react"
+import { createEditor, Node, Editor, Text } from "slate"
+import { Slate, withReact } from "slate-react"
+import { useMemo, useEffect } from "react"
 import { withHistory } from "slate-history"
-import dedent from "ts-dedent"
 
-import Liquid from "./components/Liquid"
-import Markdown from './components/AccordMarkdown'
 import { useStore } from "./store"
+import Liquid from "./components/Liquid"
+
+import {
+  ParagraphPlugin,
+  BoldPlugin,
+  EditablePlugins,
+  ItalicPlugin,
+  UnderlinePlugin,
+  pipe,
+  getRenderElement,
+} from "@udecode/slate-plugins"
+const plugins = [
+  ParagraphPlugin(),
+  BoldPlugin(),
+  ItalicPlugin(),
+  UnderlinePlugin(),
+]
+const withPlugins = [withReact, withHistory]
 
 function App() {
   const {
@@ -19,23 +34,8 @@ function App() {
     content,
     setContent,
   } = useStore()
-  const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-  function renderer(props) {
-    const { element, children, attributes } = props
-    switch (element.type) {
-      case "liquid":
-        const { text } = Node.get(element, [0])
-        return (
-          <Liquid {...props} env={{ color, title, author }}>
-            {text}
-          </Liquid>
-        )
-      default:
-        return <p {...attributes}>{children}</p>
-    }
-  }
-
-  const renderElement = useCallback(renderer, [color, author, title])
+  const editor = useMemo(() => pipe(createEditor(), ...withPlugins), [])
+  useEffect(() => (window.editor = editor), [])
   return (
     <div>
       <section className="fl w-100 pa2 bb mb4">
@@ -45,7 +45,34 @@ function App() {
           value={content}
           onChange={(value) => setContent(value)}
         >
-          <Editable renderElement={renderElement} />
+          {/* <Editable /> */}
+          <EditablePlugins
+            plugins={plugins}
+            renderElement={[
+              ({ children, attributes, element }) => {
+                if (element.type === "paragraph")
+                  return (
+                    <p {...attributes} style={{ color: "red" }}>
+                      {children}
+                    </p>
+                  )
+              },
+              (props) => {
+                const { element } = props
+                const { text: template } = Node.get(element, [0])
+                if (element.type === "liquid")
+                  return (
+                    <Liquid
+                      {...props}
+                    env={{ color, author, title }}
+                      
+                    >
+                      {template}
+                    </Liquid>
+                  )
+              },
+            ]}
+          />
         </Slate>
       </section>
 
@@ -92,24 +119,8 @@ function App() {
         <h2>Document</h2>
         <pre>{""}</pre>
       </section>
-      <Markdown />
     </div>
   )
 }
 
 export default App
-
-function deserialize(nodes) {
-  let result = ""
-
-  for (let node of nodes) {
-    const texts = [...Node.texts(node)].map((t) => t[0].text)
-    if (node.type === "liquid") {
-      result += dedent(node.template)
-    } else {
-      result += texts.join("")
-    }
-    result += "\n\n"
-  }
-  return result
-}
